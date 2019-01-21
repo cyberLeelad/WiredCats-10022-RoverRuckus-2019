@@ -1,0 +1,39 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+
+public class ColorTest extends OpMode {
+
+    ColorSensor goldSensor;
+
+    @Override
+    public void init() {
+
+        goldSensor = hardwareMap.colorSensor.get("gs");
+
+    }
+
+    @Override
+    public void loop() {
+
+        telemetry.addData("Left R:", goldSensor.red());
+        telemetry.addData("Left G:", goldSensor.blue());
+        telemetry.addData("Left B:", goldSensor.green());
+
+        telemetry.update();
+
+    }
+
+    /*
+
+    Silver Minerals:
+    G >= 5
+
+    Gold Minerals:
+    G < 5
+
+    */
+
+}
