@@ -1,0 +1,53 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
+@Autonomous
+
+public class Auto10022Depot extends Auto10022 {
+
+    public void runOpMode() throws InterruptedException {
+
+        initialize();
+
+        while(!(isStarted()  || isStopRequested())) {
+
+            idle();
+
+        }
+
+        waitForStart();
+
+        landRobot(50000.0, 1.0, 6000.0);
+
+        sleep(500); //wait
+
+        driveForward(17, 0.5, 10000);
+
+        sleep(500); //wait
+
+        detectColor();
+
+        sleep(500); //wait
+
+        repositionRobotDepot();
+
+        sleep(500); //wait
+
+        driveForward(44.5, 0.5, 10000); //to depot
+
+        sleep(500); //wait
+
+        outtakeMarker();
+
+        sleep(500); //wait
+
+        driveBackward(44.5, 0.5, 10000);
+
+        sleep(500); //wait
+
+        idle();
+
+    }
+
+}
