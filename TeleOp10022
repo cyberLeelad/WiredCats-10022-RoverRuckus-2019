@@ -1,0 +1,253 @@
+package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.CRServo;
+
+@TeleOp
+
+//outtakeRotate is commented out
+
+public class TeleOp10022 extends OpMode {
+
+    //Drivetrain
+    DcMotor frontleft, frontright, backleft, backright;
+
+    //Lift
+    DcMotor liftMotor;
+
+    //Linear Slide
+    DcMotor horizontalSlide, verticalSlide;
+
+    //Intake & Outtake
+    CRServo intakeTubing;
+    Servo intakeRotate/*, outtakeRotate*/;
+
+    //Variables
+
+    int toggleOne = 0;
+    int toggleTwo = 0;
+
+    @Override
+    public void init () {
+
+        //Drivetrain
+        frontleft = hardwareMap.dcMotor.get("frontleft");
+        frontright = hardwareMap.dcMotor.get("frontright");
+        backleft = hardwareMap.dcMotor.get("backleft");
+        backright = hardwareMap.dcMotor.get("backright");
+
+        frontright.setDirection(DcMotor.Direction.REVERSE);
+        backright.setDirection(DcMotor.Direction.REVERSE);
+
+        //Lift
+        liftMotor = hardwareMap.dcMotor.get("liftmotor");
+
+        //Linear Slide
+        horizontalSlide = hardwareMap.dcMotor.get("horizontalslide");
+        verticalSlide = hardwareMap.dcMotor.get("verticalslide");
+
+        //Intake & Outtake
+        intakeTubing = hardwareMap.crservo.get("intaketubing");
+        intakeRotate = hardwareMap.servo.get("intakerotate");
+        //outtakeRotate = hardwareMap.servo.get("outtakerotate")
+
+    }
+
+    @Override
+    public void loop() {
+
+        //Drivetrain
+
+        float lefty = gamepad1.left_stick_y;
+        float leftx = gamepad1.left_stick_x;
+        float rightx = -gamepad1.right_stick_x;
+
+        frontleft.setPower(1*(lefty - leftx + rightx));
+        backleft.setPower(1*(lefty + leftx + rightx));
+        frontright.setPower(1*(lefty + leftx - rightx));
+        backright.setPower(1*(lefty - leftx - rightx));
+
+        telemetry.addData("frontleft Enc: ",  frontleft.getCurrentPosition());
+        telemetry.addData("frontright Enc: ", frontright.getCurrentPosition());
+        telemetry.addData("backleft Enc: ",  backleft.getCurrentPosition());
+        telemetry.addData("backright Enc: ", backright.getCurrentPosition());
+        telemetry.update();
+
+        //Lift
+
+        if (gamepad1.right_bumper == true) {
+
+            liftMotor.setPower(1.0);
+
+        }
+
+        else if (gamepad1.left_bumper == true) {
+
+            liftMotor.setPower(-1.0);
+
+        }
+
+        else {
+
+            liftMotor.setPower(0.0);
+
+        }
+
+        //Linear Slide (Horizontal)
+
+        if (gamepad2.dpad_right == true) {
+
+            horizontalSlide.setPower(1.0);
+
+        }
+
+        else if (gamepad2.dpad_left == true) {
+
+            horizontalSlide.setPower(-1.0);
+
+        }
+
+        else {
+
+            horizontalSlide.setPower(0.0);
+
+        }
+
+
+        //Linear Slide (Vertical)
+
+        if (gamepad2.dpad_up == true) {
+
+            verticalSlide.setPower(1.0);
+
+        }
+
+        else if (gamepad2.dpad_down == true) {
+
+            verticalSlide.setPower(-1.0);
+
+        }
+
+        else {
+
+            verticalSlide.setPower(0.0);
+
+        }
+
+        //Intake & Outtake
+
+        //Intake Tubing
+
+        if (gamepad2.right_bumper == true && toggleOne == 0) {
+
+            toggleOne = 1;
+
+        }
+
+        else if (gamepad2.right_bumper == false && toggleOne == 1) {
+
+            intakeTubing.setPower(1.0);
+            toggleOne = 2;
+
+        }
+
+        else if (gamepad2.right_bumper == true && toggleOne == 2) {
+
+            toggleOne = 3;
+
+        }
+
+        else if (gamepad2.right_bumper == false && toggleOne == 3) {
+
+            intakeTubing.setPower(0.0);
+            toggleOne = 0;
+
+        }
+
+        if (gamepad2.left_bumper == true && toggleTwo == 0) {
+
+            toggleTwo = 1;
+
+        }
+
+        else if (gamepad2.left_bumper == false && toggleTwo == 1) {
+
+            intakeTubing.setPower(-1.0);
+            toggleTwo = 2;
+
+        }
+
+        else if (gamepad2.left_bumper == true && toggleTwo == 2) {
+
+            toggleTwo = 3;
+
+        }
+
+        else if (gamepad2.left_bumper == false && toggleTwo == 3) {
+
+            intakeTubing.setPower(0.0);
+            toggleTwo = 0;
+
+        }
+
+        //Intake Rotate
+
+        if (gamepad2.a == true) {
+
+            intakeRotate.setPosition(0.75);
+
+        }
+
+        else if (gamepad2.b == true) {
+
+            intakeRotate.setPosition(0);
+
+        }
+
+        /*//Outtake Rotate
+
+        if (gamepad2.x == true) {
+
+            intakeRotate.setPosition(0.75);
+
+        }
+
+        else if (gamepad2.y == true) {
+
+            intakeRotate.setPosition(0);
+
+        }*/
+
+        /*
+
+        Gamepad 1:
+
+        Right Analog - Rotation
+        Left Analog - Forwards, Backwards, Strafing
+
+        Right Bumper - Lift Motor Positive
+        Left Bumper - Life Motor Negative
+
+        Gamepad 2:
+
+        Dpad Right - Horizontal Slide Positive
+        Dpad Left - Horizontal Slide Negative
+        Dpad Up - Vertical Slide Positive
+        Dpad Down - Vertical Slide Negative
+
+        Right Bumper - Intake Tubing Positive (Toggle)
+        Left Bumper - Intake Tubing Negative (Toggle)
+
+        A - Intake Rotate Positive
+        B - Intake Rotate Negative
+        X - Outtake Rotate Positive
+        Y - Outtake Rotate Negative
+
+         */
+
+    }
+
+}
