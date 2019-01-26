@@ -9,37 +9,32 @@ import com.qualcomm.robotcore.hardware.ColorSensor;
 
 public abstract class Auto10022 extends LinearOpMode {
 
-    //DECLARE HARDWARE
+    //Declare Hardware
 
     //Drivetrain
-    public DcMotor frontleft;
-    public DcMotor frontright;
-    public DcMotor backleft;
-    public DcMotor backright;
+    DcMotor frontleft, frontright, backleft, backright;
 
     //Lift
-    public DcMotor liftMotor;
-
-    //Runtime
-    public ElapsedTime Runtime = new ElapsedTime();
+    DcMotor liftMotor;
 
     //Sensors
-    public ColorSensor goldSensor;
+    ColorSensor goldSensor;
 
-    //VARIABLES
+    //Linear Slide
+    DcMotor horizontalSlide, verticalSlide;
 
+    //Intake & Outtake
+    CRServo intakeTubing;
+    Servo intakeRotateOne, intakeRotateTwo, outtakeRotate;
+
+    //Variables
     static final double COUNTS_PER_MOTOR_REV = 134.4;
     static final double DRIVE_GEAR_REDUCTION = 1.0;
     static final double WHEEL_DIAMETER_INCHES = 4.0;
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * Math.PI);
 
-    //Color Sampling Test Values
     int colorTest = 0;
     int positionTest = 0;
-
-    //Servo
-    Servo intakeRotate;
-    CRServo intakeTubing;
 
     public void initialize() {
 
@@ -68,12 +63,13 @@ public abstract class Auto10022 extends LinearOpMode {
         goldSensor = hardwareMap.colorSensor.get("goldsensor");
 
         //Servo Initialization
-        intakeRotate = hardwareMap.servo.get("intakerotate");
+        intakeRotateOne = hardwareMap.servo.get("intakerotateOne");
+        intakeRotateTwo = hardwareMap.servo.get("intakerotateTwo");
         intakeTubing = hardwareMap.crservo.get("intaketubing");
 
     }
 
-    public void driveForward(double distance, double speed, double timeout) {
+    public void driveForward(double distance, double power) {
 
         int newfrontleftTarget;
         int newfrontrightTarget;
@@ -103,14 +99,12 @@ public abstract class Auto10022 extends LinearOpMode {
                 telemetry.addData("Path2",  "Running at %7d :%7d", backleft.getCurrentPosition(), backright.getCurrentPosition());
                 telemetry.update();
 
-                backleft.setPower(-speed);
-                backright.setPower(-speed);
-                frontleft.setPower(-speed);
-                frontright.setPower(-speed);
+                backleft.setPower(power);
+                backright.setPower(power);
+                frontleft.setPower(power);
+                frontright.setPower(power);
 
             }
-
-            Runtime.reset();
 
             // Stop all motion;
             frontleft.setPower(0);
@@ -129,7 +123,7 @@ public abstract class Auto10022 extends LinearOpMode {
 
     }
 
-    public void driveBackward(double distance, double speed, double timeout) {
+    public void driveBackward(double distance, double power) {
 
         int newfrontleftTarget;
         int newfrontrightTarget;
@@ -159,14 +153,12 @@ public abstract class Auto10022 extends LinearOpMode {
                 telemetry.addData("Path2",  "Running at %7d :%7d", backleft.getCurrentPosition(), backright.getCurrentPosition());
                 telemetry.update();
 
-                backleft.setPower(-speed);
-                backright.setPower(-speed);
-                frontleft.setPower(-speed);
-                frontright.setPower(-speed);
+                backleft.setPower(power);
+                backright.setPower(power);
+                frontleft.setPower(power);
+                frontright.setPower(power);
 
             }
-
-            Runtime.reset();
 
             // Stop all motion;
             frontleft.setPower(0);
@@ -185,7 +177,7 @@ public abstract class Auto10022 extends LinearOpMode {
 
     }
 
-    public void strafeRight(double distance, double speed, double timeout) {
+    public void strafeRight(double distance, double power) {
 
         int newfrontleftTarget;
         int newfrontrightTarget;
@@ -215,14 +207,12 @@ public abstract class Auto10022 extends LinearOpMode {
                 telemetry.addData("Path2",  "Running at %7d :%7d", backleft.getCurrentPosition(), backright.getCurrentPosition());
                 telemetry.update();
 
-                backleft.setPower(-speed);
-                backright.setPower(-speed);
-                frontleft.setPower(-speed);
-                frontright.setPower(-speed);
+                backleft.setPower(power);
+                backright.setPower(power);
+                frontleft.setPower(power);
+                frontright.setPower(power);
 
             }
-
-            Runtime.reset();
 
             //Stop all motion;
             frontleft.setPower(0);
@@ -241,7 +231,7 @@ public abstract class Auto10022 extends LinearOpMode {
 
     }
 
-    public void strafeLeft(double distance, double speed, double timeout) {
+    public void strafeLeft(double distance, double power) {
 
         int newfrontleftTarget;
         int newfrontrightTarget;
@@ -271,14 +261,12 @@ public abstract class Auto10022 extends LinearOpMode {
                 telemetry.addData("Path2",  "Running at %7d :%7d", backleft.getCurrentPosition(), backright.getCurrentPosition());
                 telemetry.update();
 
-                backleft.setPower(-speed);
-                backright.setPower(-speed);
-                frontleft.setPower(-speed);
-                frontright.setPower(-speed);
+                backleft.setPower(power);
+                backright.setPower(power);
+                frontleft.setPower(power);
+                frontright.setPower(power);
 
             }
-
-            Runtime.reset();
 
             // Stop all motion;
             frontleft.setPower(0);
@@ -297,7 +285,7 @@ public abstract class Auto10022 extends LinearOpMode {
 
     }
 
-    public void rotateRight(double distance, double speed, double timeout) {
+    public void rotateRight(double distance, double power) {
 
         int newfrontleftTarget;
         int newfrontrightTarget;
@@ -327,14 +315,12 @@ public abstract class Auto10022 extends LinearOpMode {
                 telemetry.addData("Path2",  "Running at %7d :%7d", backleft.getCurrentPosition(), backright.getCurrentPosition());
                 telemetry.update();
 
-                backleft.setPower(-speed);
-                backright.setPower(-speed);
-                frontleft.setPower(-speed);
-                frontright.setPower(-speed);
+                backleft.setPower(power);
+                backright.setPower(power);
+                frontleft.setPower(power);
+                frontright.setPower(power);
 
             }
-
-            Runtime.reset();
 
             // Stop all motion;
             frontleft.setPower(0);
@@ -353,7 +339,7 @@ public abstract class Auto10022 extends LinearOpMode {
 
     }
 
-    public void rotateLeft(double distance, double speed, double timeout) {
+    public void rotateLeft(double distance, double power) {
 
         int newfrontleftTarget;
         int newfrontrightTarget;
@@ -383,14 +369,12 @@ public abstract class Auto10022 extends LinearOpMode {
                 telemetry.addData("Path2",  "Running at %7d :%7d", backleft.getCurrentPosition(), backright.getCurrentPosition());
                 telemetry.update();
 
-                backleft.setPower(-speed);
-                backright.setPower(-speed);
-                frontleft.setPower(-speed);
-                frontright.setPower(-speed);
+                backleft.setPower(power);
+                backright.setPower(power);
+                frontleft.setPower(power);
+                frontright.setPower(power);
 
             }
-
-            Runtime.reset();
 
             // Stop all motion;
             frontleft.setPower(0);
@@ -409,7 +393,7 @@ public abstract class Auto10022 extends LinearOpMode {
 
     }
 
-    public void landRobot(double distance, double speed, double timeout) {
+    public void landRobot(double distance, double power) {
 
         int newLiftMotorTarget;
 
@@ -427,11 +411,9 @@ public abstract class Auto10022 extends LinearOpMode {
                 telemetry.addData("Path2",  "Running at %7d :%7d", liftMotor.getCurrentPosition());
                 telemetry.update();
 
-                liftMotor.setPower(-speed);
+                liftMotor.setPower(power);
 
             }
-
-            Runtime.reset();
 
             // Stop all motion;
             liftMotor.setPower(0);
@@ -443,23 +425,25 @@ public abstract class Auto10022 extends LinearOpMode {
 
     }
 
+    //Position 0: Middle Sample
+    //Position 1: Right Sample
+    //Position 2: Left Sample
+
     public void detectColor() {
 
         if (positionTest == 0) {
 
-            driveForward(8.0, 0.5, 10000); //Within range of color sensor
-
             if (goldSensor.green() < 5) {
 
                 //Push Gold Cube
-                driveForward(4.0, 0.5, 10000);
-                driveBackward(4.0, 0.5, 10000);
+                driveForward(5.0, 0.5);
+                driveBackward(5.0, 0.5);
 
             }
 
             else {
 
-                driveBackward(8.0, 0.5, 10000);
+                driveBackward(8.0, 0.5);
                 positionTest = 1;
 
             }
@@ -469,24 +453,21 @@ public abstract class Auto10022 extends LinearOpMode {
         if (positionTest == 1) {
 
             //Move to right sample
-            rotateRight(60, 0.5, 10000);
-            driveForward(14.0, 0.5, 10000);
-            rotateLeft(60, 0.5, 10000);
-
-            //Within range of color sensor
-            driveForward(8.0, 0.5, 10000);
+            rotateRight(60, 0.5);
+            driveForward(14.0, 0.5);
+            rotateLeft(60, 0.5);
 
             if (goldSensor.green() < 5) {
 
                 //Push Gold Cube
-                driveForward(4.0, 0.5, 10000);
-                driveBackward(4.0, 0.5, 10000);
+                driveForward(5.0, 0.5);
+                driveBackward(5.0, 0.5);
 
             }
 
             else {
 
-                driveBackward(8.0, 0.5, 10000);
+                driveBackward(8.0, 0.5);
                 positionTest = 2;
 
             }
@@ -496,45 +477,41 @@ public abstract class Auto10022 extends LinearOpMode {
         if (positionTest == 2) {
 
             //Move to left sample
-            rotateLeft(60, 0.5, 10000);
-            driveForward(29.5, 0.5, 10000);
-            rotateRight(60, 0.5, 10000);
+            rotateLeft(60, 0.5);
+            driveForward(29.5, 0.5);
+            rotateRight(60, 0.5);
 
             //Push Gold Cube
-            driveForward(12.0, 0.5, 10000);
-            driveBackward(12.0, 0.5, 10000);
+            driveForward(8.0, 0.5);
+            driveBackward(8.0, 0.5);
 
         }
 
     }
 
-    //Position 0: Middle Sample
-    //Position 1: Right Sample
-    //Position 2: Left Sample
-
     public void repositionRobotDepot() {
 
         if (positionTest == 0) {
 
-            rotateRight(60, 0.5, 10000); //90 Degrees
-            driveBackward(39.0, 0.5, 10000);
-            rotateLeft(30, 0.5, 10000); //45 Degrees
+            rotateRight(60, 0.5); //90 Degrees
+            driveBackward(39.0, 0.5);
+            rotateLeft(30, 0.5); //45 Degrees
 
         }
 
         if (positionTest == 1) {
 
-            rotateRight(60, 0.5, 10000); //90 Degrees
-            driveBackward(24.5, 0.5, 10000);
-            rotateLeft(30, 0.5, 10000); //45 Degrees
+            rotateRight(60, 0.5); //90 Degrees
+            driveBackward(24.5, 0.5);
+            rotateLeft(30, 0.5); //45 Degrees
 
         }
 
         if (positionTest == 2) {
 
-            rotateRight(60, 0.5, 10000); //90 Degrees
-            driveBackward(54.0, 0.5, 10000);
-            rotateLeft(30, 0.5, 10000); //45 Degrees
+            rotateRight(60, 0.5); //90 Degrees
+            driveBackward(54.0, 0.5);
+            rotateLeft(30, 0.5); //45 Degrees
 
         }
 
@@ -544,38 +521,49 @@ public abstract class Auto10022 extends LinearOpMode {
 
         if (positionTest == 0) {
 
-            rotateLeft(60, 0.5, 10000); //90 Degrees
-            driveForward(41.0, 0.5, 10000);
-            rotateLeft(30, 0.5, 10000); //45 Degrees
+            rotateLeft(60, 0.5); //90 Degrees
+            driveForward(41.0, 0.5);
+            rotateLeft(30, 0.5); //45 Degrees
 
         }
 
         if (positionTest == 1) {
 
-            rotateLeft(60, 0.5, 10000); //90 Degrees
-            driveForward(60.0, 0.5, 10000);
-            rotateLeft(30, 0.5, 10000); //45 Degrees
+            rotateLeft(60, 0.5); //90 Degrees
+            driveForward(60.0, 0.5);
+            rotateLeft(30, 0.5); //45 Degrees
 
         }
 
         if (positionTest == 2) {
 
-            rotateLeft(60, 0.5, 10000); //90 Degrees
-            driveBackward(24.0, 0.5, 10000);
-            rotateLeft(30, 0.5, 10000); //45 Degrees
+            rotateLeft(60, 0.5); //90 Degrees
+            driveBackward(24.0, 0.5);
+            rotateLeft(30, 0.5); //45 Degrees
 
         }
 
     }
 
-    public void outtakeMarker() {
+    public void outtakeMarker(double position, double time) {
 
-        intakeRotate.setPosition(0.75);
-        sleep(3000);
+        intakeRotateOne.setPosition(position);
+        intakeRotateTwo.setPosition(position);
+        sleep(time);
         intakeTubing.setPower(1);
-        sleep(3000);
-        intakeRotate.setPosition(0);
-        sleep(3000);
+        sleep(time);
+        intakeRotateOne.setPosition(0);
+        intakeRotateTwo.setPosition(0);
+        sleep(time);
+
+    }
+
+    public void intakeMinerals(double time) {
+
+        horizontalSlide.setPower(1);
+        sleep(time);
+        intakeTubing.setPower(1);
+        sleep(1000000);
 
     }
 
