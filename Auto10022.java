@@ -433,7 +433,7 @@ public abstract class Auto10022 extends LinearOpMode {
 
         if (positionTest == 0) {
 
-            if (goldSensor.green() < 5) {
+            if (goldSensor.green() < 30) {
 
                 //Push Gold Cube
                 driveForward(5.0, 0.5);
@@ -457,7 +457,7 @@ public abstract class Auto10022 extends LinearOpMode {
             driveForward(14.0, 0.5);
             rotateLeft(60, 0.5);
 
-            if (goldSensor.green() < 5) {
+            if (goldSensor.green() < 30) {
 
                 //Push Gold Cube
                 driveForward(5.0, 0.5);
