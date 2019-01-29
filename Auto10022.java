@@ -23,7 +23,7 @@ public abstract class Auto10022 extends LinearOpMode {
     DcMotor horizontalSlide, verticalSlide;
 
     //Intake & Outtake
-    CRServo intakeTubing;
+    DcMotor intakeTubing;
     Servo intakeRotateOne, intakeRotateTwo, outtakeRotate;
 
     //Variables
@@ -62,9 +62,54 @@ public abstract class Auto10022 extends LinearOpMode {
         goldSensor = hardwareMap.colorSensor.get("goldsensor");
 
         //Servo Initialization
-        intakeRotateOne = hardwareMap.servo.get("intakerotateOne");
-        intakeRotateTwo = hardwareMap.servo.get("intakerotateTwo");
-        intakeTubing = hardwareMap.crservo.get("intaketubing");
+        intakeRotateOne = hardwareMap.servo.get("intakerotateone");
+        intakeRotateTwo = hardwareMap.servo.get("intakerotatetwo");
+        intakeTubing = hardwareMap.dcMotor.get("intaketubing");
+
+    }
+
+    public void Forward(double inches, double power){
+        if(opModeIsActive())  {
+
+            backleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            backright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            frontleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            frontright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            backleft.setTargetPosition((int)(-inches * COUNTS_PER_INCH));
+            backright.setTargetPosition((int)(-inches * COUNTS_PER_INCH));
+            frontleft.setTargetPosition((int)((inches * COUNTS_PER_INCH)));
+            frontright.setTargetPosition((int)(inches * COUNTS_PER_INCH));
+
+            backleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            frontleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            frontright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+            while(opModeIsActive() && backright.isBusy() && frontright.isBusy() && frontleft.isBusy() && backleft.isBusy()){
+
+                telemetry.addData("Path1",  "Running to %7d :%7d", backleft.getTargetPosition(), backright.getTargetPosition());
+                telemetry.addData("Path2",  "Running at %7d :%7d", backleft.getCurrentPosition(), backright.getCurrentPosition());
+                telemetry.update();
+
+                backleft.setPower(power);
+                backright.setPower(power);
+                frontleft.setPower(power);
+                frontright.setPower(power);
+            }
+
+            frontleft.setPower(0);
+            frontright.setPower(0);
+            backleft.setPower(0);
+            backright.setPower(0);
+
+            backleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        }
 
     }
 
@@ -75,7 +120,7 @@ public abstract class Auto10022 extends LinearOpMode {
         int newbackleftTarget;
         int newbackrightTarget;
 
-        while (opModeIsActive()) {
+        if (opModeIsActive()) {
 
             newfrontleftTarget = frontleft.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
             newfrontrightTarget = frontright.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
@@ -98,21 +143,21 @@ public abstract class Auto10022 extends LinearOpMode {
                 telemetry.addData("Path2",  "Running at %7d :%7d", backleft.getCurrentPosition(), backright.getCurrentPosition());
                 telemetry.update();
 
-                backleft.setPower(power);
-                backright.setPower(power);
-                frontleft.setPower(power);
-                frontright.setPower(power);
+                backleft.setPower(-power);
+                backright.setPower(-power);
+                frontleft.setPower(-power);
+                frontright.setPower(-power);
 
             }
 
-            // Stop all motion;
+            //Stop all motion;
             frontleft.setPower(0);
             frontright.setPower(0);
             backleft.setPower(0);
             backright.setPower(0);
 
 
-            // Turn off RUN_TO_POSITION
+            //Turn off RUN_TO_POSITION
             frontleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             frontright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             backleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -148,8 +193,8 @@ public abstract class Auto10022 extends LinearOpMode {
 
             while(opModeIsActive() && backright.isBusy() && frontright.isBusy() && frontleft.isBusy() && backleft.isBusy()) {
 
-                telemetry.addData("Path1",  "Running to %7d :%7d", backleft.getTargetPosition(), backright.getTargetPosition());
-                telemetry.addData("Path2",  "Running at %7d :%7d", backleft.getCurrentPosition(), backright.getCurrentPosition());
+                telemetry.addData("Path1",  "Running to %7d :%7d", newbackleftTarget, newbackrightTarget);
+                telemetry.addData("Path2",  "Running at %7d :%7d", frontleft.getCurrentPosition(), frontright.getCurrentPosition(), backleft.getCurrentPosition(), backright.getCurrentPosition());
                 telemetry.update();
 
                 backleft.setPower(power);
@@ -394,13 +439,13 @@ public abstract class Auto10022 extends LinearOpMode {
 
     public void landRobot(double distance, double power) {
 
-        int newLiftMotorTarget;
+        int newliftmotorTarget;
 
         while (opModeIsActive()) {
 
-            newLiftMotorTarget = liftMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
+            newliftmotorTarget = liftMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
 
-            liftMotor.setTargetPosition(newLiftMotorTarget);
+            liftMotor.setTargetPosition(newliftmotorTarget);
 
             liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -544,7 +589,7 @@ public abstract class Auto10022 extends LinearOpMode {
 
     }
 
-    public void outtakeMarker(double position, double time) {
+    public void outtakeMarker(double position, int time) {
 
         intakeRotateOne.setPosition(position);
         intakeRotateTwo.setPosition(position);
@@ -557,7 +602,7 @@ public abstract class Auto10022 extends LinearOpMode {
 
     }
 
-    public void intakeMinerals(double time) {
+    public void intakeMinerals(int time) {
 
         horizontalSlide.setPower(1);
         sleep(time);
