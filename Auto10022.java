@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
+
+//Runtime and Pulses
 
 public abstract class Auto10022 extends LinearOpMode {
 
@@ -27,13 +30,16 @@ public abstract class Auto10022 extends LinearOpMode {
     Servo intakeRotateOne, intakeRotateTwo, outtakeRotate;
 
     //Variables
-    static final double COUNTS_PER_MOTOR_REV = 134.4;
+    static final double COUNTS_PER_MOTOR_REV = 537.6;
     static final double DRIVE_GEAR_REDUCTION = 1.0;
     static final double WHEEL_DIAMETER_INCHES = 4.0;
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) / (WHEEL_DIAMETER_INCHES * Math.PI);
 
     int colorTest = 0;
     int positionTest = 0;
+    
+    //Counter
+    private ElapsedTime Runtime = new ElapsedTime();
 
     public void initialize() {
 
@@ -67,52 +73,30 @@ public abstract class Auto10022 extends LinearOpMode {
         intakeTubing = hardwareMap.dcMotor.get("intaketubing");
 
     }
+    
+    public void zeroEncoders() {
+        
+        frontleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-    public void Forward(double inches, double power){
-        if(opModeIsActive())  {
-
-            backleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            backright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            frontleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            frontright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            backleft.setTargetPosition((int)(-inches * COUNTS_PER_INCH));
-            backright.setTargetPosition((int)(-inches * COUNTS_PER_INCH));
-            frontleft.setTargetPosition((int)((inches * COUNTS_PER_INCH)));
-            frontright.setTargetPosition((int)(inches * COUNTS_PER_INCH));
-
-            backleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            backright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            frontleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            frontright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-
-            while(opModeIsActive() && backright.isBusy() && frontright.isBusy() && frontleft.isBusy() && backleft.isBusy()){
-
-                telemetry.addData("Path1",  "Running to %7d :%7d", backleft.getTargetPosition(), backright.getTargetPosition());
-                telemetry.addData("Path2",  "Running at %7d :%7d", backleft.getCurrentPosition(), backright.getCurrentPosition());
-                telemetry.update();
-
-                backleft.setPower(power);
-                backright.setPower(power);
-                frontleft.setPower(power);
-                frontright.setPower(power);
-            }
-
-            frontleft.setPower(0);
-            frontright.setPower(0);
-            backleft.setPower(0);
-            backright.setPower(0);
-
-            backleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            backright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            frontleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            frontright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        }
-
+        frontleft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontright.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backleft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backright.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        
     }
-
+    
+    public void stopDrive() {
+        
+        frontleft.setPower(0);
+        frontright.setPower(0);
+        backleft.setPower(0);
+        backright.setPower(0);
+        
+    }
+    
     public void driveForward(double distance, double power) {
 
         int newfrontleftTarget;
@@ -149,6 +133,8 @@ public abstract class Auto10022 extends LinearOpMode {
                 frontright.setPower(-power);
 
             }
+            
+            Runtime.reset();
 
             //Stop all motion;
             frontleft.setPower(0);
@@ -204,6 +190,8 @@ public abstract class Auto10022 extends LinearOpMode {
 
             }
 
+            Runtime.reset();
+
             // Stop all motion;
             frontleft.setPower(0);
             frontright.setPower(0);
@@ -222,60 +210,6 @@ public abstract class Auto10022 extends LinearOpMode {
     }
 
     public void strafeRight(double distance, double power) {
-
-        int newfrontleftTarget;
-        int newfrontrightTarget;
-        int newbackleftTarget;
-        int newbackrightTarget;
-
-        if (opModeIsActive()) {
-
-            newfrontleftTarget = frontleft.getCurrentPosition() - (int)(distance * COUNTS_PER_INCH);
-            newfrontrightTarget = frontright.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
-            newbackleftTarget = backleft.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
-            newbackrightTarget = backright.getCurrentPosition() - (int)(distance * COUNTS_PER_INCH);
-
-            frontleft.setTargetPosition(newfrontleftTarget);
-            frontright.setTargetPosition(newfrontrightTarget);
-            backleft.setTargetPosition(newbackleftTarget);
-            backright.setTargetPosition(newbackrightTarget);
-
-            frontleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            frontright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            backleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            backright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            while(opModeIsActive() && backright.isBusy() && frontright.isBusy() && frontleft.isBusy() && backleft.isBusy()) {
-
-                telemetry.addData("Path1",  "Running to %7d :%7d", backleft.getTargetPosition(), backright.getTargetPosition());
-                telemetry.addData("Path2",  "Running at %7d :%7d", backleft.getCurrentPosition(), backright.getCurrentPosition());
-                telemetry.update();
-
-                backleft.setPower(power);
-                backright.setPower(power);
-                frontleft.setPower(power);
-                frontright.setPower(power);
-
-            }
-
-            //Stop all motion;
-            frontleft.setPower(0);
-            frontright.setPower(0);
-            backleft.setPower(0);
-            backright.setPower(0);
-
-
-            //Turn off RUN_TO_POSITION
-            frontleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            frontright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            backleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            backright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        }
-
-    }
-
-    public void strafeLeft(double distance, double power) {
 
         int newfrontleftTarget;
         int newfrontrightTarget;
@@ -311,6 +245,64 @@ public abstract class Auto10022 extends LinearOpMode {
                 frontright.setPower(power);
 
             }
+            
+            Runtime.reset();
+
+            //Stop all motion;
+            frontleft.setPower(0);
+            frontright.setPower(0);
+            backleft.setPower(0);
+            backright.setPower(0);
+
+
+            //Turn off RUN_TO_POSITION
+            frontleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            frontright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            backright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        }
+
+    }
+
+    public void strafeLeft(double distance, double power) {
+
+        int newfrontleftTarget;
+        int newfrontrightTarget;
+        int newbackleftTarget;
+        int newbackrightTarget;
+
+        if (opModeIsActive()) {
+
+            newfrontleftTarget = frontleft.getCurrentPosition() - (int)(distance * COUNTS_PER_INCH);
+            newfrontrightTarget = frontright.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
+            newbackleftTarget = backleft.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
+            newbackrightTarget = backright.getCurrentPosition() - (int)(distance * COUNTS_PER_INCH);
+
+            frontleft.setTargetPosition(newfrontleftTarget);
+            frontright.setTargetPosition(newfrontrightTarget);
+            backleft.setTargetPosition(newbackleftTarget);
+            backright.setTargetPosition(newbackrightTarget);
+
+            frontleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            frontright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backleft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            backright.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            while(opModeIsActive() && backright.isBusy() && frontright.isBusy() && frontleft.isBusy() && backleft.isBusy()) {
+
+                telemetry.addData("Path1",  "Running to %7d :%7d", backleft.getTargetPosition(), backright.getTargetPosition());
+                telemetry.addData("Path2",  "Running at %7d :%7d", backleft.getCurrentPosition(), backright.getCurrentPosition());
+                telemetry.update();
+
+                backleft.setPower(power);
+                backright.setPower(power);
+                frontleft.setPower(power);
+                frontright.setPower(power);
+
+            }
+            
+            Runtime.reset();
 
             // Stop all motion;
             frontleft.setPower(0);
@@ -365,6 +357,8 @@ public abstract class Auto10022 extends LinearOpMode {
                 frontright.setPower(power);
 
             }
+            
+            Runtime.reset();
 
             // Stop all motion;
             frontleft.setPower(0);
@@ -419,6 +413,8 @@ public abstract class Auto10022 extends LinearOpMode {
                 frontright.setPower(power);
 
             }
+            
+            Runtime.reset();
 
             // Stop all motion;
             frontleft.setPower(0);
@@ -437,15 +433,15 @@ public abstract class Auto10022 extends LinearOpMode {
 
     }
 
-    public void landRobot(double distance, double power) {
+public void landRobot(double distance, double power) {
 
-        int newliftmotorTarget;
+    int newLiftTarget;
 
-        while (opModeIsActive()) {
+        if (opModeIsActive()) {
 
-            newliftmotorTarget = liftMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
+            newLiftTarget = liftMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
 
-            liftMotor.setTargetPosition(newliftmotorTarget);
+            liftMotor.setTargetPosition(newLiftTarget);
 
             liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
@@ -458,6 +454,8 @@ public abstract class Auto10022 extends LinearOpMode {
                 liftMotor.setPower(power);
 
             }
+            
+            Runtime.reset();
 
             // Stop all motion;
             liftMotor.setPower(0);
@@ -476,18 +474,21 @@ public abstract class Auto10022 extends LinearOpMode {
     public void detectColor() {
 
         if (positionTest == 0) {
+            
+            driveForward(4.5, .3);
+            
+            sleep(200);
 
-            if (goldSensor.green() < 30) {
+            if (goldSensor.blue() < 60 && goldSensor.red() > 40) {
 
                 //Push Gold Cube
-                driveForward(5.0, 0.5);
-                driveBackward(5.0, 0.5);
+                driveForward(9.0, 0.3);
+                driveBackward(9.0, 0.3);
 
             }
 
             else {
-
-                driveBackward(8.0, 0.5);
+            
                 positionTest = 1;
 
             }
@@ -497,21 +498,21 @@ public abstract class Auto10022 extends LinearOpMode {
         if (positionTest == 1) {
 
             //Move to right sample
-            rotateRight(60, 0.5);
-            driveForward(14.0, 0.5);
-            rotateLeft(60, 0.5);
+            strafeRight(21.5, .3);
+            
+            driveForward(1.0, .3);
 
-            if (goldSensor.green() < 30) {
+            if (goldSensor.blue() < 60 && goldSensor.red() > 40) {
 
                 //Push Gold Cube
-                driveForward(5.0, 0.5);
-                driveBackward(5.0, 0.5);
+                driveForward(9.0, 0.3);
+                driveBackward(9.0, 0.3);
+                driveBackward(3, 0.3);
 
             }
 
             else {
 
-                driveBackward(8.0, 0.5);
                 positionTest = 2;
 
             }
@@ -521,13 +522,11 @@ public abstract class Auto10022 extends LinearOpMode {
         if (positionTest == 2) {
 
             //Move to left sample
-            rotateLeft(60, 0.5);
-            driveForward(29.5, 0.5);
-            rotateRight(60, 0.5);
+            strafeLeft(40, .3);
 
             //Push Gold Cube
-            driveForward(8.0, 0.5);
-            driveBackward(8.0, 0.5);
+            driveForward(9.0, 0.5);
+            driveBackward(9.0, 0.5);
 
         }
 
