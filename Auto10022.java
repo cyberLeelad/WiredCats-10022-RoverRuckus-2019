@@ -7,7 +7,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -42,16 +41,22 @@ public abstract class Auto10022 extends LinearOpMode {
 
     int colorTest = 0;
     int positionTest = 0;
-    
+
     //Counter
     private ElapsedTime Runtime = new ElapsedTime();
-    
+
     //REV IMU
     BNO055IMU imu;
     Orientation angles;
 
     public void initialize() {
-        
+
+        //Slide Initialization
+        horizontalSlide = hardwareMap.dcMotor.get("horizontalslide");
+
+        //Lift Initializtion
+        liftMotor = hardwareMap.dcMotor.get("liftmotor");
+
         //IMU Initialization
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
@@ -73,11 +78,13 @@ public abstract class Auto10022 extends LinearOpMode {
         frontright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         frontleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         frontright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backleft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         backright.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         //Sensor Initialization
         goldSensor = hardwareMap.colorSensor.get("goldsensor");
@@ -88,40 +95,36 @@ public abstract class Auto10022 extends LinearOpMode {
         intakeTubing = hardwareMap.dcMotor.get("intaketubing");
 
     }
-    
-    public void zeroEncoders() {
-        
+
+    public void resetEncoders() {
+
         frontleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backleft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backright.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        liftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        frontleft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        frontright.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backleft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        backright.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        
     }
-    
+
     public void stopDrive() {
-        
+
         frontleft.setPower(0);
         frontright.setPower(0);
         backleft.setPower(0);
         backright.setPower(0);
-        
+
     }
-    
+
     public void getGyro() {
-        
+
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         telemetry.addData("Heading: ", angles.firstAngle);
         telemetry.addData("Roll: ", angles.secondAngle);
         telemetry.addData("Pitch: ", angles.thirdAngle);
         telemetry.update();
-        
+
     }
-    
+
     public void driveForward(double distance, double power) {
 
         int newfrontleftTarget;
@@ -158,7 +161,7 @@ public abstract class Auto10022 extends LinearOpMode {
                 frontright.setPower(-power);
 
             }
-            
+
             Runtime.reset();
 
             //Stop all motion;
@@ -270,7 +273,7 @@ public abstract class Auto10022 extends LinearOpMode {
                 frontright.setPower(power);
 
             }
-            
+
             Runtime.reset();
 
             //Stop all motion;
@@ -326,7 +329,7 @@ public abstract class Auto10022 extends LinearOpMode {
                 frontright.setPower(power);
 
             }
-            
+
             Runtime.reset();
 
             // Stop all motion;
@@ -382,7 +385,7 @@ public abstract class Auto10022 extends LinearOpMode {
                 frontright.setPower(power);
 
             }
-            
+
             Runtime.reset();
 
             // Stop all motion;
@@ -438,7 +441,7 @@ public abstract class Auto10022 extends LinearOpMode {
                 frontright.setPower(power);
 
             }
-            
+
             Runtime.reset();
 
             // Stop all motion;
@@ -457,73 +460,81 @@ public abstract class Auto10022 extends LinearOpMode {
         }
 
     }
-    
+
     public void gyroTurn(double angle, double power) {
-        
+
         //Update angular orientation
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        
+
         if(angles.firstAngle < angle) {
-            
+
             //Turns Right if set angle is rightwards
             frontleft.setPower(-power);
             frontright.setPower(-power);
             backleft.setPower(power);
             backright.setPower(power);
-            
+
         }
-        
+
         //Update angular orientation
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        
+
         if(angles.firstAngle > angle) {
-            
+
             //Turns Left if set angle is Leftwards
             frontleft.setPower(power);
             frontright.setPower(power);
             backleft.setPower(-power);
             backright.setPower(-power);
-            
+
         }
-        
+
         frontleft.setPower(0);
         frontright.setPower(0);
         backleft.setPower(0);
         backright.setPower(0);
-        
+
     }
 
-    public void landRobot(double distance, double power) {
+    public void landRobot(double ticks, double power) {
 
-        int newLiftTarget;
+        int newliftmotorTarget;
 
-            if (opModeIsActive()) {
+        if (opModeIsActive()) {
 
-                newLiftTarget = liftMotor.getCurrentPosition() + (int)(distance * COUNTS_PER_INCH);
+            newliftmotorTarget = liftMotor.getCurrentPosition() + (int)(ticks*100);
 
-                liftMotor.setTargetPosition(newLiftTarget);
+            liftMotor.setTargetPosition(newliftmotorTarget);
 
-                liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            liftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-                while(opModeIsActive() && liftMotor.isBusy()) {
+            while(opModeIsActive() && liftMotor.isBusy()) {
 
-                    telemetry.addData("Path1",  "Running to %7d :%7d", liftMotor.getTargetPosition());
-                    telemetry.addData("Path2",  "Running at %7d :%7d", liftMotor.getCurrentPosition());
-                    telemetry.update();
+                telemetry.addData("Path1", liftMotor.getTargetPosition());
+                telemetry.addData("Path2", liftMotor.getCurrentPosition());
+                telemetry.update();
 
-                    liftMotor.setPower(power);
+                liftMotor.setPower(-power);
 
-                }
-            
+            }
+
             Runtime.reset();
 
-            // Stop all motion;
+            //Stop all motion;
             liftMotor.setPower(0);
 
-            // Turn off RUN_TO_POSITION
+            //Turn off RUN_TO_POSITION
             liftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         }
+
+    }
+
+    public void lowerLift(int time, double power) {
+
+        liftMotor.setPower(power);
+        sleep(time);
+        liftMotor.setPower(0);
 
     }
 
@@ -535,16 +546,17 @@ public abstract class Auto10022 extends LinearOpMode {
 
         if (positionTest == 0) {
 
-            if (goldSensor.blue() < 60 && goldSensor.red() > 40) {
+            if (goldSensor.green() < 60 || goldSensor.red() > 100 && goldSensor.green() < 80) {
 
                 //Push Gold Cube
-                driveForward(9.0, 0.3);
-                driveBackward(9.0, 0.3);
+                driveForward(7.5, 0.3);
+                driveBackward(8.5, 0.3);
 
             }
 
             else {
-            
+
+                driveBackward(3, 0.3);
                 positionTest = 1;
 
             }
@@ -554,19 +566,23 @@ public abstract class Auto10022 extends LinearOpMode {
         if (positionTest == 1) {
 
             //Move to right sample
-            strafeRight(20, .3);
+            strafeRight(23, .3);
 
-            if (goldSensor.blue() < 60 && goldSensor.red() > 40) {
+            driveForward(2.75, .3);
+
+            sleep(600);
+
+            if (goldSensor.green() < 60 || goldSensor.red() > 100 && goldSensor.green() < 80) {
 
                 //Push Gold Cube
-                driveForward(9.0, 0.3);
-                driveBackward(9.0, 0.3);
-                driveBackward(3, 0.3);
+                driveForward(7.5, 0.3);
+                driveBackward(8.5, 0.3);
 
             }
 
             else {
 
+                driveBackward(6, .3);
                 positionTest = 2;
 
             }
@@ -576,11 +592,13 @@ public abstract class Auto10022 extends LinearOpMode {
         if (positionTest == 2) {
 
             //Move to left sample
-            strafeLeft(40, .3);
+            strafeLeft(43.5, .3);
+
+            driveForward(4.5, .3);
 
             //Push Gold Cube
-            driveForward(9.0, 0.5);
-            driveBackward(9.0, 0.5);
+            driveForward(7.5, 0.3);
+            driveBackward(8.5, 0.3);
 
         }
 
@@ -590,25 +608,22 @@ public abstract class Auto10022 extends LinearOpMode {
 
         if (positionTest == 0) {
 
-            rotateRight(60, 0.5); //90 Degrees
-            driveBackward(39.0, 0.5);
-            rotateLeft(30, 0.5); //45 Degrees
+            driveBackward(35.0, 0.6);
+            rotateRight(11.2, 0.3); //45 Degrees
 
         }
 
         if (positionTest == 1) {
 
-            rotateRight(60, 0.5); //90 Degrees
-            driveBackward(24.5, 0.5);
-            rotateLeft(30, 0.5); //45 Degrees
+            driveBackward(20.5, 0.6);
+            rotateRight(11.2, 0.3); //45 Degrees
 
         }
 
         if (positionTest == 2) {
 
-            rotateRight(60, 0.5); //90 Degrees
-            driveBackward(54.0, 0.5);
-            rotateLeft(30, 0.5); //45 Degrees
+            driveBackward(49.5, 0.6);
+            rotateRight(11.2, 0.3); //45 Degrees
 
         }
 
@@ -618,49 +633,34 @@ public abstract class Auto10022 extends LinearOpMode {
 
         if (positionTest == 0) {
 
-            rotateLeft(60, 0.5); //90 Degrees
-            driveForward(41.0, 0.5);
-            rotateLeft(30, 0.5); //45 Degrees
+            driveForward(35.0, 0.6);
+            rotateLeft(11.2, 0.3); //45 Degrees
 
         }
 
         if (positionTest == 1) {
 
-            rotateLeft(60, 0.5); //90 Degrees
-            driveForward(60.0, 0.5);
-            rotateLeft(30, 0.5); //45 Degrees
+            driveForward(49.5, 0.6);
+            rotateLeft(11.2, 0.3); //45 Degrees
 
         }
 
         if (positionTest == 2) {
 
-            rotateLeft(60, 0.5); //90 Degrees
-            driveBackward(24.0, 0.5);
-            rotateLeft(30, 0.5); //45 Degrees
+            driveForward(20.5, 0.6);
+            rotateLeft(11.2, 0.3); //45 Degrees
 
         }
 
     }
 
-    public void outtakeMarker(double position, int time) {
+    public void outtakeMarker() {
 
-        intakeRotateOne.setPosition(position);
-        intakeRotateTwo.setPosition(position);
-        sleep(time);
+        intakeRotateTwo.setPosition(0.6);
+        sleep(1000);
         intakeTubing.setPower(1);
-        sleep(time);
-        intakeRotateOne.setPosition(0);
-        intakeRotateTwo.setPosition(0);
-        sleep(time);
-
-    }
-
-    public void intakeMinerals(int time) {
-
-        horizontalSlide.setPower(1);
-        sleep(time);
-        intakeTubing.setPower(1);
-        sleep(1000000);
+        sleep(800);
+        intakeTubing.setPower(0)
 
     }
 
