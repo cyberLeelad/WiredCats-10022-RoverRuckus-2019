@@ -1,6 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import com.qualcomm.hardware.bosch.BNO055IMU;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -26,17 +31,27 @@ public class TeleOp10022 extends OpMode {
     DcMotor horizontalSlide, verticalSlide;
 
     //Intake & Outtake
-    CRServo intakeTubing;
+    DcMotor intakeTubing;
     Servo intakeRotateOne, intakeRotateTwo, outtakeRotate;
 
     //Variables
     int toggleOne = 0;
     int toggleTwo = 0;
 
+    //REV IMU
+    BNO055IMU imu;
+    Orientation angles;
+
     @Override
     public void init () {
 
         //Initialization
+
+        //IMU Initialization
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        imu = hardwareMap.get(BNO055IMU.class,"imu");
+        imu.initialize(parameters);
 
         //Drivetrain
         frontleft = hardwareMap.dcMotor.get("frontleft");
@@ -55,9 +70,9 @@ public class TeleOp10022 extends OpMode {
         verticalSlide = hardwareMap.dcMotor.get("verticalslide");
 
         //Intake & Outtake
-        intakeTubing = hardwareMap.crservo.get("intaketubing");
-        intakeRotateOne = hardwareMap.servo.get("intakerotateOne");
-        intakeRotateTwo = hardwareMap.servo.get("intakerotateTwo");
+        intakeTubing = hardwareMap.dcMotor.get("intaketubing");
+        intakeRotateOne = hardwareMap.servo.get("intakerotateone");
+        intakeRotateTwo = hardwareMap.servo.get("intakerotatetwo");
         outtakeRotate = hardwareMap.servo.get("outtakerotate");
 
         //Sensors
@@ -77,28 +92,26 @@ public class TeleOp10022 extends OpMode {
         Right Analog X - Rotation
          */
 
-        float lefty = gamepad1.left_stick_y;
-        float leftx = gamepad1.left_stick_x;
-        float rightx = -gamepad1.right_stick_x;
+        float lefty = -gamepad1.left_stick_y;
+        float leftx = -gamepad1.left_stick_x;
+        float rightx = gamepad1.right_stick_x;
 
-        frontleft.setPower(1*(lefty - leftx + rightx));
-        backleft.setPower(1*(lefty + leftx + rightx));
-        frontright.setPower(1*(lefty + leftx - rightx));
-        backright.setPower(1*(lefty - leftx - rightx));
-
-        /*
-        Driver Station shows ticks travelled
-         */
-
-        telemetry.addData("frontleft Enc: ",  frontleft.getCurrentPosition());
-        telemetry.addData("frontright Enc: ", frontright.getCurrentPosition());
-        telemetry.addData("backleft Enc: ",  backleft.getCurrentPosition());
-        telemetry.addData("backright Enc: ", backright.getCurrentPosition());
+        frontleft.setPower(.8*(lefty - leftx + rightx));
+        backleft.setPower(.8*(lefty + leftx + rightx));
+        frontright.setPower(.8*(lefty + leftx - rightx));
+        backright.setPower(.8*(lefty - leftx - rightx));
 
         //Sensor
         telemetry.addData("R: ", goldSensor.red());
         telemetry.addData("G: ", goldSensor.blue());
         telemetry.addData("B: ", goldSensor.green());
+        telemetry.update();
+
+        //IMU Orientation
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        telemetry.addData("Heading: ", angles.firstAngle);
+        telemetry.addData("Roll: ", angles.secondAngle);
+        telemetry.addData("Pitch: ", angles.thirdAngle);
         telemetry.update();
 
         //Lift
@@ -162,15 +175,15 @@ public class TeleOp10022 extends OpMode {
         Dpad Down - Vertical Slide Retract
          */
 
-        if (gamepad1.dpad_up == true) {
+        if (gamepad1.dpad_up == true && outtakeRotate.getPosition() != 1) {
 
-            verticalSlide.setPower(1.0);
+            verticalSlide.setPower(-1.0);
 
         }
 
-        else if (gamepad1.dpad_down == true) {
+        else if (gamepad1.dpad_down == true && outtakeRotate.getPosition() != 1) {
 
-            verticalSlide.setPower(-1.0);
+            verticalSlide.setPower(1.0);
 
         }
 
@@ -192,13 +205,13 @@ public class TeleOp10022 extends OpMode {
 
         if (gamepad2.right_bumper == true) {
 
-            intakeTubing.setPower(1);
+            intakeTubing.setPower(-1);
 
         }
 
         else if (gamepad2.left_bumper == true) {
 
-            intakeTubing.setPower(-1);
+            intakeTubing.setPower(1);
 
         }
 
@@ -216,17 +229,27 @@ public class TeleOp10022 extends OpMode {
         B - Raise Intake Box
          */
 
-        if (gamepad2.a == true) {
+        /*if (gamepad2.a == true) {
 
-            intakeRotateOne.setPosition(0.75);
-            intakeRotateTwo.setPosition(0.75);
+            intakeRotateOne.setPosition(.925);
 
         }
 
         else if (gamepad2.b == true) {
 
-            intakeRotateOne.setPosition(0);
-            intakeRotateTwo.setPosition(0);
+            intakeRotateOne.setPosition(0.4);
+
+        }*/
+
+        if (gamepad2.a == true) {
+
+            intakeRotateTwo.setPosition(0.6);
+
+        }
+
+        else if (gamepad2.b == true) {
+
+            intakeRotateTwo.setPosition(.15);
 
         }
 
@@ -241,19 +264,19 @@ public class TeleOp10022 extends OpMode {
 
         if (gamepad1.a == true) {
 
-            outtakeRotate.setPosition(0.75);
+            outtakeRotate.setPosition(1);
 
         }
 
         else if (gamepad1.x == true) {
 
-            outtakeRotate.setPosition(0);
+            outtakeRotate.setPosition(.4);
 
         }
 
         else if (gamepad1.b == true) {
 
-            outtakeRotate.setPosition(0.3);
+            outtakeRotate.setPosition(0.75);
 
         }
 
