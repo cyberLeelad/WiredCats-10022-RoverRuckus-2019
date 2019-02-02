@@ -18,41 +18,39 @@ public class Auto10022Depot extends Auto10022 {
 
         waitForStart();
 
-        landRobot(50000.0, 1.0);
+        lowerLift(9850, 1); //Duration required to lower the robot at roughly 12.57v
 
-        sleep(500); //wait
+        driveBackward(1.5, .3); //Resets robot position after landing
 
-        driveForward(17, 0.3); //3" in front of middle sample
+        sleep(500);
 
-        sleep(500); //wait
+        strafeRight(6, .4); //Unhooks the robot
 
-        detectColor(); //pushes gold cube
+        driveForward(15.6, .3);
 
-        sleep(500); //wait
+        strafeLeft(6, .4); //Front of center mineral - Position 0
 
-        repositionRobotDepot(); //moves robot to the side
+        sleep(500);
 
-        sleep(500); //wait
+        detectColor(); //Pushes gold block
 
-        driveForward(44.5, 0.5); //to depot
+        rotateLeft(22.5, .3); //Face reversed robot towards wall between depot and crater, 90 Degrees
 
-        sleep(500); //wait
+        repositionRobotDepot(); //Repositions robot to face depot
 
-        outtakeMarker(); //outtakes team marker into depot
+        driveForward(40, .8); //To the depot
 
-        sleep(500); //wait
+        outtakeMarker(); //Drops team marker into depot
 
-        rotateRight(120, 0.5) //facing crater
+        rotateLeft(45, .7); //Face robot towards crater, 180 Degrees
 
-        sleep(500); //wait
+        driveForward(55, 1); //Towards crater
 
-        driveForward(44.5, 0.5); //into crater
+        horizontalSlide.setPower(1); //Extend arms outward for parking
 
-        sleep(500); //wait
+        sleep(1750);
 
-        intakeMinerals(5000); //extend horizontal slides over crater and runs intake
-
-        sleep(500); //wait
+        horizontalSlide.setPower(0); //Stop arms from extending
 
         idle();
 
